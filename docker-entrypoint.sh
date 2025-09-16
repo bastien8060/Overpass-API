@@ -36,11 +36,13 @@ for f in /docker-entrypoint-initdb.d/*; do
 	echo
 done
 
-if [[ ! -f /db/init_done ]]; then
+initialize_db_dir() {
 	echo "No database directory. Initializing"
 	touch /db/changes.log
 	mkdir -p /db/diffs
+}
 
+setup_cookie_jar() {
 	if [[ "${USE_OAUTH_COOKIE_CLIENT}" = "yes" ]]; then
 		/app/venv/bin/python /app/bin/oauth_cookie_client.py -o /db/cookie.jar -s /secrets/oauth-settings.json --format netscape
 		# necessary to add newline at the end as oauth_cookie_client doesn't do that
@@ -50,6 +52,11 @@ if [[ ! -f /db/init_done ]]; then
 		echo "${OVERPASS_COOKIE_JAR_CONTENTS}" >>/db/cookie.jar
 	fi
 	chown -R overpass:overpass /db/cookie.jar /db/changes.log /db/diffs
+}
+
+if [[ ! -f /db/init_done ]]; then
+	initialize_db_dir
+	setup_cookie_jar
 
 	if [[ "$OVERPASS_MODE" = "clone" ]]; then
 		(
