@@ -70,14 +70,13 @@ if [[ "$OVERPASS_MODE" = "clone" ]]; then
 			echo "Failed to clone overpass repository"
 			exit 1
 		)
-		if [[ "${OVERPASS_STOP_AFTER_INIT}" == "false" ]]; then
-			echo "Overpass container ready to receive requests"
-		else
-			echo "Overpass container initialization complete. Exiting."
-			exit 0
-		fi
+	fi
+
+	if [[ "${OVERPASS_STOP_AFTER_INIT}" == "false" ]]; then
+		echo "Overpass container ready to receive requests"
 	else
-		echo "Database directory already initialized. Skipping clone."
+		echo "Overpass container initialization complete. Exiting."
+		exit 0
 	fi
 fi
 
@@ -116,12 +115,6 @@ if [[ "$OVERPASS_MODE" = "init" ]]; then
 				echo "Failed to process planet file"
 				exit 1
 			)
-			if [[ "${OVERPASS_STOP_AFTER_INIT}" == "false" ]]; then
-				echo "Overpass container ready to receive requests"
-			else
-				echo "Overpass container initialization complete. Exiting."
-				exit 0
-			fi
 		elif [[ $CURL_STATUS_CODE = "403" ]]; then
 			echo "Access denied when downloading planet file. Check your OVERPASS_PLANET_URL and OVERPASS_COOKIE_JAR_CONTENTS or USE_OAUTH_COOKIE_CLIENT"
 			cat /db/cookie.jar
@@ -131,6 +124,13 @@ if [[ "$OVERPASS_MODE" = "init" ]]; then
 			cat /db/planet.osm.bz2
 			exit 1
 		fi
+	fi
+
+	if [[ "${OVERPASS_STOP_AFTER_INIT}" == "false" ]]; then
+		echo "Overpass container ready to receive requests"
+	else
+		echo "Overpass container initialization complete. Exiting."
+		exit 0
 	fi
 fi
 
