@@ -54,11 +54,11 @@ setup_cookie_jar() {
 	chown -R overpass:overpass /db/cookie.jar /db/changes.log /db/diffs
 }
 
-if [[ ! -f /db/init_done ]]; then
-	initialize_db_dir
-	setup_cookie_jar
 
-	if [[ "$OVERPASS_MODE" = "clone" ]]; then
+if [[ "$OVERPASS_MODE" = "clone" ]]; then
+	if [[ ! -f /db/init_done ]]; then
+		initialize_db_dir
+		setup_cookie_jar
 		(
 			mkdir -p /db/db &&
 				/app/bin/download_clone.sh --db-dir=/db/db --source="${OVERPASS_CLONE_SOURCE}" --meta="${OVERPASS_META}" &&
@@ -76,9 +76,16 @@ if [[ ! -f /db/init_done ]]; then
 			echo "Overpass container initialization complete. Exiting."
 			exit 0
 		fi
+	else
+		echo "Database directory already initialized. Skipping clone."
 	fi
+fi
 
-	if [[ "$OVERPASS_MODE" = "init" ]]; then
+if [[ "$OVERPASS_MODE" = "init" ]]; then
+	if [[ ! -f /db/init_done ]]; then
+		initialize_db_dir
+		setup_cookie_jar
+		
 		CURL_STATUS_CODE=$(curl -L -b /db/cookie.jar -o /db/planet.osm.bz2 -w "%{http_code}" "${OVERPASS_PLANET_URL}")
 		# try again until it's allowed
 		while [ "$CURL_STATUS_CODE" = "429" ]; do
