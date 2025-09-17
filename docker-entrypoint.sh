@@ -71,13 +71,6 @@ if [[ "$OVERPASS_MODE" = "clone" ]]; then
 			exit 1
 		)
 	fi
-
-	if [[ "${OVERPASS_STOP_AFTER_INIT}" == "false" ]]; then
-		echo "Overpass container ready to receive requests"
-	else
-		echo "Overpass container initialization complete. Exiting."
-		exit 0
-	fi
 fi
 
 if [[ "$OVERPASS_MODE" = "init" ]]; then
@@ -125,7 +118,9 @@ if [[ "$OVERPASS_MODE" = "init" ]]; then
 			exit 1
 		fi
 	fi
+fi
 
+if [[ "$OVERPASS_MODE" = "init" || "$OVERPASS_MODE" = "clone" ]]; then
 	if [[ "${OVERPASS_STOP_AFTER_INIT}" == "false" ]]; then
 		echo "Overpass container ready to receive requests"
 	else
